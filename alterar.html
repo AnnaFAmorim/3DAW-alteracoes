@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Editor de Perguntas</title>
+</head>
+<body>
+  <h2>Modificar uma Pergunta</h2>
+
+  <label for="busca_id">ID da Pergunta:</label><br>
+  <input type="text" id="busca_id" required>
+  <button onclick="procurarItem()">Buscar Item</button>
+
+  <br><br>
+ 
+  <div id="area_edicao" style="display: none;">
+    <form onsubmit="event.preventDefault(); salvarItem();">
+      <input type="hidden" id="item_id" name="id">
+     
+      <label for="item_pergunta">Texto da Pergunta:</label><br>
+      <textarea id="item_pergunta" name="pergunta" rows="4" cols="50"></textarea><br><br>
+     
+      <label for="item_resposta">Texto da Resposta:</label><br>
+      <textarea id="item_resposta" name="resposta" rows="4" cols="50"></textarea><br><br>
+
+      <button type="submit">Confirmar Alteração</button>
+    </form>
+  </div>
+
+  <script>
+    function procurarItem() {
+      const itemId = document.getElementById("busca_id").value;
+      if (!itemId) {
+        alert("Digite o ID para buscar.");
+        return;
+      }
+
+      const requisicao = new XMLHttpRequest();
+      requisicao.open("GET", "api_perguntas.php?codigo=" + itemId);
+
+      requisicao.onreadystatechange = function () {
+        if (requisicao.readyState === 4) {
+          if (requisicao.status === 200) {
+            const dados = JSON.parse(requisicao.responseText);
+            if (dados.erro) {
+              alert(dados.erro);
+            } else {
+              document.getElementById("item_id").value = dados[0];
+              document.getElementById("item_pergunta").value = dados[1];
+              document.getElementById("item_resposta").value = dados[2];
+              document.getElementById("area_edicao").style.display = "block";
+            }
+          } else {
+            alert("Falha na busca. Código: " + requisicao.status);
+          }
+        }
+      };
+      requisicao.send();
+    }
+
+    function salvarItem() {
+      const id = document.getElementById("item_id").value;
+      const pergunta = document.getElementById("item_pergunta").value;
+      const resposta = document.getElementById("item_resposta").value;
+
+      const requisicao = new XMLHttpRequest();
+      requisicao.open("POST", "api_perguntas.php", true);
+      requisicao.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+      requisicao.onreadystatechange = function () {
+        if (requisicao.readyState === 4) {
+          if (requisicao.status === 200) {
+            alert(requisicao.responseText);
+            document.getElementById("area_edicao").style.display = "none";
+            document.getElementById("busca_id").value = "";
+          } else {
+            alert("Falha ao salvar. Código: " + requisicao.status);
+          }
+        }
+      };
+
+      const dadosPost = "id=" + id + "&pergunta=" + pergunta + "&resposta=" + resposta;
+      requisicao.send(dadosPost);
+    }
+  </script>
+</body>
+</html>
