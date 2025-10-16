@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cadastrar Perguntas</title>
+</head>
+<body>
+  <h3>Cadastrar Perguntas Discursivas</h3>
+  <form>
+    <input type="hidden" name="tipo" value="discursiva">
+    <input type="text" name="texto_questao" placeholder="Digite a pergunta" id="texto_questao" />
+    <input type="text" name="texto_resposta" placeholder="Digite a resposta" id="texto_resposta" />
+    <input type="text" name="id_questao" placeholder="ID" id="id_questao" />
+    <input type="button" value="Cadastrar" onclick="registrarQuestao()" />
+  </form>
+
+  <p id="status_envio"></p>
+  
+  <script>
+    function registrarQuestao() {
+      let pergunta = document.getElementById("texto_questao").value;
+      let resposta = document.getElementById("texto_resposta").value;
+      let statusMsg = document.getElementById("status_envio");
+      let id = document.getElementById("id_questao").value;
+
+      if (!id || !pergunta) {
+          statusMsg.innerHTML = "ID e Pergunta são obrigatórios.";
+          return;
+      }
+
+      const dados = {
+          id_questao: id,
+          texto_questao: pergunta,
+          texto_resposta: resposta
+      };
+      const json = JSON.stringify(dados);
+
+      let requisicao = new XMLHttpRequest();
+      requisicao.onreadystatechange = function () { 
+      if (this.readyState == 4) {
+          const respostaObj = JSON.parse(this.responseText);
+          if (this.status == 200 && respostaObj.status === 'sucesso') {
+              statusMsg.innerHTML = respostaObj.mensagem;
+          } else {
+              statusMsg.innerHTML = "Erro";
+          }
+        } else {
+          statusMsg.innerHTML = "Falha no envio";
+        }
+      };
+
+      requisicao.open("POST", "cadastrarperguntastexto.php");
+      requisicao.setRequestHeader("Content-type", "application/json");
+      requisicao.send(json);
+    }
+  </script>
+</body>
+</html>

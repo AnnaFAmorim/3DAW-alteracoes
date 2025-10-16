@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Cadastrar Perguntas Múltipla Escolha</title>
+</head>
+<body>
+    <h3>Cadastrar Perguntas Múltipla Escolha</h3>
+    <form>
+        <textarea name="pergunta" placeholder="Pergunta" id="texto_pergunta" rows="3" cols="50"></textarea><br><br>
+        <input type="text" name="opc1" placeholder="A" id="opc1"/><br>
+        <input type="text" name="opc2" placeholder="B" id="opc2"/><br>
+        <input type="text" name="opc3" placeholder="C" id="opc3"/><br>
+        <input type="text" name="opc4" placeholder="D" id="opc4"/><br>
+        <input type="text" name="resposta_certa" placeholder="Correta" id="resposta_certa" /><br><br>
+        <input type="text" name="id_questao" placeholder="ID da Questão" id="id_questao" /><br><br>   
+        <input type="button" value="Cadastrar Questão" onclick="salvarMultiplaEscolha()" />
+    </form>
+    
+    <p id="status_msg"></p>
+    
+    <script>
+        function salvarMultiplaEscolha() {
+            const statusMsg = document.getElementById("status_msg");
+            const dados = {
+                id_questao: document.getElementById("id_questao").value,
+                pergunta: document.getElementById("texto_pergunta").value,
+                opc1: document.getElementById("opc1").value,
+                opc2: document.getElementById("opc2").value,
+                opc3: document.getElementById("opc3").value,
+                opc4: document.getElementById("opc4").value,
+                resposta_certa: document.getElementById("resposta_certa").value
+            };
+
+            const json = JSON.stringify(dados);
+            
+            let requisicao = new XMLHttpRequest();
+            
+            requisicao.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                  const respostaObj = JSON.parse(this.responseText);
+                  if (this.status == 200 && respostaObj.status === 'sucesso') {
+                    statusMsg.innerHTML = respostaObj.mensagem;
+                } else {
+                    statusMsg.innerHTML = "Erro";
+                } 
+                } else {
+                  statusMsg.innerHTML = "Falha no envio";            
+                }
+            };
+
+            requisicao.open("POST", "cadastrarperguntamultipla.php", true);
+            requisicao.setRequestHeader("Content-type", "application/json");
+            requisicao.send(json);
+        }
+    </script>
+</body>
+</html>
