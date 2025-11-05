@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Deletar</title>
+</head>
+<body>
+    <h2>Excluir Questão por ID</h2>
+    
+    <form onsubmit="event.preventDefault(); confirmarExclusao();">
+        <div>
+            <label for="tipo-questao">Tipo de Questão:</label>
+            <select id="tipo-questao">
+                <option value="discursiva">Discursiva</option>
+                <option value="multipla">Múltipla Escolha</option>
+            </select>
+        </div>
+        <br>
+        <div>
+            <label for="id-questao">ID da Questão:</label>
+            <input type="text" id="id-questao" placeholder="Ex: Q102" required>
+        </div>
+        <br>
+        <button type="submit">Excluir Questão</button>
+    </form>
+
+    <p id="status-msg"></p>
+
+    <script>
+    function confirmarExclusao() {
+        const tipo = document.getElementById("tipo-questao").value;
+        const id = document.getElementById("id-questao").value;
+        const statusMsg = document.getElementById("status-msg");
+
+        statusMsg.innerHTML = "Excluindo...";
+
+        const dados = {
+            id: id,
+            tipo: tipo
+        };
+        const json = JSON.stringify(dados);
+        const xhttp = new XMLHttpRequest();
+        
+        xhttp.open("POST", "deletar.php", true);
+        xhttp.setRequestHeader("Content-Type", "application/json");
+
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    const resposta = JSON.parse(this.responseText);
+                    statusMsg.innerHTML = resposta.mensagem;
+                    
+                    if (resposta.status === 'sucesso') {
+                        document.getElementById("id-questao").value = "";
+                    }
+                } else {
+                    statusMsg.innerHTML = "Erro de comunicação: " . this.status;
+                }
+            }
+        };
+        xhttp.send(json);
+    }
+    </script>
+</body>
+</html>
